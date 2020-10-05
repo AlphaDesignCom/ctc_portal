@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Title</title>
+   </head>
+   <body>
+      <input type="file" id="files" name="files[]" multiple />
+
+      <script src="jquery-3.2.1.min.js"></script>
+      <script src="jquery.csv.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.0/moment.min.js"></script>
+
+      <script>
+         $("#files").bind("change", handleFileSelect);
+
+         async function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+            var file = files[0];
+            var reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = async function (event) {
+               var csv = event.target.result;
+               var data = $.csv.toArrays(csv);
+               console.log(data.length);
+               console.log(data[0].length);
+
+               for (var x = 3; x < data.length; x++) {
+                  for (var y = 1; y < data[x].length; y++) {
+                     var dataSet = {
+                        cardId: data[2][y],
+                        count: data[x][y] || 0,
+                        date: moment(data[x][0]),
+                     };
+                     console.log(dataSet);
+
+                     const BASE_URL =
+                        "http://localhost/alphadesign-ctc_api/index.php/";
+                     var url = BASE_URL + "api/beetle/create_date";
+
+                     var res = await $.ajax({
+                        url: url,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(dataSet),
+                        headers: {
+                           Authorization:
+                              "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEiLCJuYW1lIjoiYSIsImVtYWlsIjoiYUBnbWFpbC5jb20iLCJjcmVhdGVkX2F0IjoiMjAxOS0wMi0xNiAxNTowNjoyNiIsInVwZGF0ZWRfYXQiOm51bGwsInJvbGUiOiJTdXBlciBBZG1pbiIsInRpbWUiOjE2MDE4ODUxNjV9.yaMCb-jv9o_KMTYHhXB91Mh9VTGU3SL0o7cUvuVRRMs",
+                        },
+                        // success: function (data) {
+                        //    console.log(data);
+                        // },
+                        // error: function (e) {
+                        //    console.log(e);
+                        // },
+                     });
+
+                     console.log(res);
+                  }
+               }
+            };
+            reader.onerror = function () {
+               alert("Unable to read " + file.fileName);
+            };
+         }
+
+         //
+         //        var csv = event.target.result;
+         //        var data = $.csv.toArrays(csv);
+         //        console.log(data[3][1]);
+         //
+         //
+         //                const BASE_URL = "http://localhost/ctc_beetle_project/index.php/";
+         //                var url = BASE_URL + 'api/user/get';
+         //                $.ajax({
+         //                    url: url,
+         //                    type: 'POST',
+         //                    dataType: "json",
+         //                    contentType: "application/json; charset=utf-8",
+         //                    headers: {
+         //                        'Authorization': Cookies.get('token')
+         //                    },
+         //                    success: function (data) {
+         //                        if (data.status) {
+         //                            $('#userName').text(data.data.uName);
+         //                            $('#contactName').text(data.data.uName);
+         //                            $('#contactEmail').text(data.data.uEmail);
+         //                        }
+         //                    },
+         //                    error: function (e) {
+         //                        console.log(e);
+         //                    }
+         //                });
+      </script>
+   </body>
+</html>
